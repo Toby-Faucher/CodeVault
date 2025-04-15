@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import UnderlineMotion from "../../components/underline-motion";
 
 export default function Home() {
@@ -11,7 +13,7 @@ export default function Home() {
             <UnderlineMotion />
           </span>.
         </h1>
-        <a href="/snippets/public" className="btn btn-outline btn-success text-lg">Browse Public Snippets</a>
+        <Link href="/snippets/public" className="btn btn-outline btn-success text-lg">Browse Public Snippets</Link>
       </div>
     </main>
   );

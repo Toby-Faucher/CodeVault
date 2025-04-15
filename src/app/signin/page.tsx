@@ -1,4 +1,6 @@
 import SignInForm from "../../../components/sign-in-form";
+import { createServerClient } from "@supabase/ssr";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,9 +14,9 @@ export default function Page() {
         <SignInForm />
         <div className="mt-6 text-center text-sm opacity-70 w-full">
           Don&apos;t have an account?{' '}
-          <a href="/signup" className="link link-primary underline">
+          <Link href="/signup" className="link link-primary underline">
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
     </main>
