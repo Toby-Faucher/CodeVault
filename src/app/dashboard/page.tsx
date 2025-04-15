@@ -34,7 +34,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-base-200">
-      <SnippetDashboard userId={user.id} userEmail={user.email} />
+      <SnippetDashboard userId={user.id ?? ""} userEmail={user.email ?? ""} />
     </main>
   );
 }

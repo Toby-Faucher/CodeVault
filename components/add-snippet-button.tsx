@@ -14,7 +14,13 @@ export default function AddSnippetButton({ userId, onAdd }: { userId: string; on
     setLoading(true);
     setError(null);
     const { error } = await supabase.from("snippets").insert([
-      { user_id: userId, name: "Hello World" }
+      {
+        user_id: userId,
+        title: "Hello World Example",
+        code: "console.log('Hello, World!');",
+        language: "javascript",
+        is_public: true
+      }
     ]);
     setLoading(false);
     if (error) setError(error.message);
