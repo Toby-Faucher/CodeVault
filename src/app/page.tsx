@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import UnderlineMotion from "../../components/underline-motion";
 

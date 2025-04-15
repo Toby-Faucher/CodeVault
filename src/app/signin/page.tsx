@@ -1,5 +1,4 @@
 import SignInForm from "../../../components/sign-in-form";
-import { createServerClient } from "@supabase/ssr";
 import Link from "next/link";
 import type { Metadata } from "next";
 
