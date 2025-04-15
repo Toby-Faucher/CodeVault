@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  themes: light, dark, cupcake, bumblebee --default, emerald, corporate, synthwave --prefersdark, dracula;
+  root: ":root";
+  logs: false;
+}
 
 :root {
   --background: #ffffff;
