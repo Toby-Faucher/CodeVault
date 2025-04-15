@@ -44,10 +44,18 @@ export default function UserBubble() {
             <hr className="my-3"/>
             <li>
               <button
-                className="btn btn-error btn-sm w-full flex items-center gap-2"
+                className="btn btn-info btn-sm w-full flex items-center gap-2 px-4 py-2"
+                onClick={() => router.push("/dashboard")}
+              >
+                <UserIcon size={16} /> Go to Dashboard
+              </button>
+            </li>
+            <hr className="my-3"/>
+            <li>
+              <button
+                className="btn btn-error btn-sm w-full flex items-center gap-2 px-4 py-2"
                 onClick={async () => { await supabase.auth.signOut(); window.location.href = "/signin"; }}
               >
-                
                 <LogOut size={16} /> Sign Out
               </button>
             </li>

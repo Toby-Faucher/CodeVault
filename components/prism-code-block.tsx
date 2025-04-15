@@ -34,7 +34,7 @@ export default function PrismCodeBlock({ code, language, maxLines = 0 }: { code:
   }, [displayCode, language]);
 
   return (
-    <pre className="bg-base-100 rounded p-2 mt-2 text-sm overflow-x-auto max-h-48">
+    <pre className={`bg-base-100 rounded p-2 mt-2 text-sm overflow-x-auto ${maxLines > 0 ? 'max-h-48' : 'max-h-[70vh]'} shadow-inner`}>
       <code ref={ref} className={`language-${language ?? "javascript"}`}>{displayCode}</code>
     </pre>
   );

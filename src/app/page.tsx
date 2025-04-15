@@ -5,12 +5,13 @@ export default function Home() {
     <main className="min-h-screen flex items-center justify-center bg-base-200">
       <div className="w-full h-full flex flex-col items-center justify-center">
         <h1 className="text-5xl md:text-7xl font-extrabold text-center mb-6">
-    Upload Your Code.<br />
-    Share It <span className="relative inline-block">
-      Anywhere
-      <UnderlineMotion />
-    </span>.
-  </h1>
+          Upload Your Code.<br />
+          Share It <span className="relative inline-block">
+            Anywhere
+            <UnderlineMotion />
+          </span>.
+        </h1>
+        <a href="/snippets/public" className="btn btn-outline btn-success text-lg">Browse Public Snippets</a>
       </div>
     </main>
   );

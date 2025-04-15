@@ -9,6 +9,7 @@ const supabase = createBrowserClient(supabaseUrl, supabaseKey);
 export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -19,12 +20,38 @@ export default function SignUpForm() {
     setError(null);
     setSuccess(false);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess(true);
+      // Check if display name is taken (in profiles table)
+      const { data: existing, error: displayNameError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('display_name', displayName)
+        .maybeSingle();
+      if (displayNameError) throw displayNameError;
+      if (existing) {
+        setError('Display name is already taken.');
+        setLoading(false);
+        return;
       }
+      // Create user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+      if (error || !data?.user) {
+        setError(error?.message || 'Signup failed.');
+        setLoading(false);
+        return;
+      }
+      // Insert profile row with display name and email
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({ id: data.user.id, display_name: displayName, email });
+      if (profileError) {
+        setError('Failed to save display name.');
+        setLoading(false);
+        return;
+      }
+      setSuccess(true);
     } catch (err) {
       setError("Unexpected error. Please try again.");
       console.error(err);
@@ -50,6 +77,22 @@ export default function SignUpForm() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           disabled={loading}
+        />
+      </div>
+      <div className="form-control">
+        <label htmlFor="displayName" className="label">
+          <span className="label-text">Display Name</span>
+        </label>
+        <input
+          id="displayName"
+          name="displayName"
+          type="text"
+          required
+          className="input input-bordered"
+          value={displayName}
+          onChange={e => setDisplayName(e.target.value)}
+          disabled={loading}
+          minLength={3}
         />
       </div>
       <div className="form-control">
