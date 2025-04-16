@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import PrintFolderClient from "../print-folder/PrintFolderClient";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function PrintFolderPage({ searchParams }: any) {
   const folderId = typeof searchParams?.folder === "string"
     ? searchParams.folder
