@@ -63,11 +63,12 @@ export default function UserBubble() {
         </div>
       ) : (
         <button
-          className="btn btn-ghost btn-circle"
+          className="btn btn-primary rounded-full px-5 py-2 text-base font-semibold shadow-lg flex items-center gap-2"
           onClick={() => router.push("/signin")}
           aria-label="Sign in"
         >
-          <LogIn size={24} />
+          <LogIn size={20} />
+          Try Code Vault Now
         </button>
       )}
     </div>

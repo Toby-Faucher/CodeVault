@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import AddSnippetModal from "./add-snippet-modal";
 import AddFolderModal from "./add-folder-modal"; // Import AddFolderModal
 import { createBrowserClient } from "@supabase/ssr";
@@ -30,10 +31,15 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalSnippet, setModalSnippet] = useState<Snippet | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [snippetToEdit, setSnippetToEdit] = useState<Snippet | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addFolderOpen, setAddFolderOpen] = useState(false); // Restore addFolderOpen state
   const [deleting, setDeleting] = useState(false);
   const [showDeleteToast, setShowDeleteToast] = useState(false);
+  const [showAddToast, setShowAddToast] = useState(false);
+  const [showEditToast, setShowEditToast] = useState(false);
+  const [showFolderAddToast, setShowFolderAddToast] = useState(false);
   const [folders, setFolders] = useState<{ id: string; name: string }[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [showFolderDeleteToast, setShowFolderDeleteToast] = useState(false);
@@ -254,15 +260,44 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
         userId={userId}
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
-        onAdd={fetchSnippets}
+        onAdd={() => {
+          setShowAddToast(true);
+          setTimeout(() => setShowAddToast(false), 2000);
+          fetchSnippets();
+        }}
         folders={folders}
         defaultFolderId={selectedFolder}
+      />
+      {/* Edit Snippet Modal */}
+      <AddSnippetModal
+        userId={userId}
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSnippetToEdit(null);
+        }}
+        onAdd={() => {
+          setEditModalOpen(false);
+          setSnippetToEdit(null);
+          setModalSnippet(null);
+          setShowEditToast(true);
+          setTimeout(() => setShowEditToast(false), 2000);
+          fetchSnippets();
+        }}
+        folders={folders}
+        defaultFolderId={snippetToEdit?.folder_id || null}
+        initialSnippet={snippetToEdit || undefined}
+        isEdit
       />
       <AddFolderModal
         userId={userId}
         open={addFolderOpen}
         onClose={() => setAddFolderOpen(false)}
-        onAdd={fetchFolders}
+        onAdd={() => {
+          setShowFolderAddToast(true);
+          setTimeout(() => setShowFolderAddToast(false), 2000);
+          fetchFolders();
+        }}
       />
       {error ? (
         <div className="alert alert-error">Error loading snippets: {error}</div>
@@ -356,6 +391,18 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
                           <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 border-2 border-neutral mt-2">
                             <li>
                               <button
+                                className="btn btn-sm w-full flex items-center gap-2"
+                                onClick={() => {
+                                  setSnippetToEdit(modalSnippet);
+                                  setEditModalOpen(true);
+                                }}
+                              >
+                                Edit Snippet
+                              </button>
+                            </li>
+                            <hr className="my-3"/>
+                            <li>
+                              <button
                                 className="btn btn-error btn-sm w-full flex items-center gap-2"
                                 onClick={async () => {
                                   await handleDelete(modalSnippet.id);
@@ -386,22 +433,73 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
           </div>
         </Dialog>
       </Transition.Root>
-      {showDeleteToast && (
-        <div
-          className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary animate-pop-up"
-          style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
-        >
-          <span className="font-semibold text-primary">Snippet deleted!</span>
-        </div>
-      )}
-      {showFolderDeleteToast && (
-        <div
-          className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary animate-pop-up"
-          style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
-        >
-          <span className="font-semibold text-primary">Folder deleted!</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {showAddToast && (
+          <motion.div
+            key="add-toast"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25, type: "spring", bounce: 0.3 }}
+            className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary"
+            style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
+          >
+            <span className="font-semibold text-primary">Snippet added!</span>
+          </motion.div>
+        )}
+        {showEditToast && (
+          <motion.div
+            key="edit-toast"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25, type: "spring", bounce: 0.3 }}
+            className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary"
+            style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
+          >
+            <span className="font-semibold text-primary">Snippet updated!</span>
+          </motion.div>
+        )}
+        {showDeleteToast && (
+          <motion.div
+            key="delete-toast"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25, type: "spring", bounce: 0.3 }}
+            className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary"
+            style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
+          >
+            <span className="font-semibold text-primary">Snippet deleted!</span>
+          </motion.div>
+        )}
+        {showFolderAddToast && (
+          <motion.div
+            key="folder-add-toast"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25, type: "spring", bounce: 0.3 }}
+            className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary"
+            style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
+          >
+            <span className="font-semibold text-primary">Folder added!</span>
+          </motion.div>
+        )}
+        {showFolderDeleteToast && (
+          <motion.div
+            key="folder-delete-toast"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.25, type: "spring", bounce: 0.3 }}
+            className="fixed bottom-4 right-4 z-50 bg-base-100 text-base-content px-6 py-4 rounded shadow-lg border-2 border-primary"
+            style={{ minWidth: '180px', textAlign: 'center', fontSize: '1.15rem' }}
+          >
+            <span className="font-semibold text-primary">Folder deleted!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
