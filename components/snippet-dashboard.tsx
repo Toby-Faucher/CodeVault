@@ -286,7 +286,11 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
         }}
         folders={folders}
         defaultFolderId={snippetToEdit?.folder_id || null}
-        initialSnippet={snippetToEdit || undefined}
+        initialSnippet={
+          snippetToEdit
+            ? { ...snippetToEdit, folder_id: snippetToEdit.folder_id ?? "" }
+            : undefined
+        }
         isEdit
       />
       <AddFolderModal
