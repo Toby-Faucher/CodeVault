@@ -27,6 +27,10 @@ type Snippet = {
 };
 
 export default function SnippetDashboard({ userId, userEmail }: { userId: string; userEmail: string }) {
+  function handlePrintSnippet(snippet: Snippet) {
+    window.open(`/snippets/${snippet.id}/print`, '_blank');
+  }
+
   const [snippets, setSnippets] = useState<Snippet[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -172,6 +176,18 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
                   }}
                 >
                   Edit Folder Name
+                </button>
+              </li>
+              <hr className="my-3"/>
+              <li>
+                <button
+                  className="btn btn-outline btn-sm w-full flex items-center gap-2"
+                  onClick={() => {
+                    window.open(`/snippets/print-folder?folder=${selectedFolder}`, '_blank');
+                    setFolderDropdownOpen(false);
+                  }}
+                >
+                  Print Folder
                 </button>
               </li>
               <hr className="my-3"/>
@@ -402,6 +418,15 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
                                 }}
                               >
                                 Edit Snippet
+                              </button>
+                            </li>
+                            <hr className="my-3"/>
+                            <li>
+                              <button
+                                className="btn btn-outline btn-sm w-full flex items-center gap-2"
+                                onClick={() => handlePrintSnippet(modalSnippet)}
+                              >
+                                Print Snippet
                               </button>
                             </li>
                             <hr className="my-3"/>
