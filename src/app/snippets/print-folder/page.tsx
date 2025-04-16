@@ -1,11 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import PrintFolderClient from "../print-folder/PrintFolderClient";
 
-export default async function PrintFolderPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function PrintFolderPage({ searchParams }: any) {
   const folderId = typeof searchParams?.folder === "string"
     ? searchParams.folder
     : Array.isArray(searchParams?.folder)
