@@ -8,7 +8,7 @@ import { Fragment } from "react";
 import { Transition } from "@headlessui/react";
 import { Dialog } from "@headlessui/react";
 import PrismCodeBlock from "./prism-code-block";
-import { Settings } from "lucide-react";
+import { Settings, ChevronDown, ChevronUp } from "lucide-react";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -26,12 +26,14 @@ type Snippet = {
   folder_id: string | null;
 };
 
-export default function SnippetDashboard({ userId, userEmail }: { userId: string; userEmail: string }) {
+export default function SnippetDashboard({ userId }: { userId: string }) {
   function handlePrintSnippet(snippet: Snippet) {
     window.open(`/snippets/${snippet.id}/print`, '_blank');
   }
 
   const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const [showFoldersOpen, setShowFoldersOpen] = useState<boolean>(true);
+  const [showSnippetsOpen, setShowSnippetsOpen] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalSnippet, setModalSnippet] = useState<Snippet | null>(null);
@@ -97,115 +99,309 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
     // eslint-disable-next-line
   }, []);
 
-  // Only show snippets with no folder in the root view
-  const visibleSnippets = selectedFolder
-    ? snippets.filter(s => s.folder_id === selectedFolder)
-    : snippets.filter(s => !s.folder_id);
+  // Filter and search state
+  const [search, setSearch] = useState("");
+  const [folderFilter, setFolderFilter] = useState<string>("root");
+  const [languageFilter, setLanguageFilter] = useState<string>("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<string>("all");
+
+  // Gather all unique languages for the filter dropdown
+  const allLanguages = Array.from(new Set(snippets.map(s => s.language))).filter(Boolean);
+
+  // Determine which snippets to search/filter
+  let filteredSnippets: Snippet[] = snippets;
+  // If in a folder, always show only that folder's snippets, then apply filters and search
+  if (selectedFolder) {
+    filteredSnippets = snippets.filter(s => s.folder_id === selectedFolder);
+    if (languageFilter !== "all") {
+      filteredSnippets = filteredSnippets.filter(s => s.language === languageFilter);
+    }
+    if (visibilityFilter !== "all") {
+      filteredSnippets = filteredSnippets.filter(s => visibilityFilter === "public" ? s.is_public : !s.is_public);
+    }
+    // Apply search filter only if search is not empty
+    if (search.trim() !== "") {
+      filteredSnippets = filteredSnippets.filter(s =>
+        s.title.toLowerCase().includes(search.toLowerCase()) ||
+        s.code.toLowerCase().includes(search.toLowerCase()) ||
+        s.language.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+  } else {
+    if (folderFilter === "root") {
+      filteredSnippets = filteredSnippets.filter(s => !s.folder_id);
+    } else if (folderFilter !== "root") {
+      filteredSnippets = filteredSnippets.filter(s => s.folder_id === folderFilter);
+    }
+    if (languageFilter !== "all") {
+      filteredSnippets = filteredSnippets.filter(s => s.language === languageFilter);
+    }
+    if (visibilityFilter !== "all") {
+      filteredSnippets = filteredSnippets.filter(s => visibilityFilter === "public" ? s.is_public : !s.is_public);
+    }
+    // Apply search filter only if search is not empty
+    if (search.trim() !== "") {
+      filteredSnippets = filteredSnippets.filter(s =>
+        s.title.toLowerCase().includes(search.toLowerCase()) ||
+        s.code.toLowerCase().includes(search.toLowerCase()) ||
+        s.language.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+  }
+
+  // The final visibleSnippets list
+  const visibleSnippets = filteredSnippets;
+
 
   return (
-    <div className="w-full max-w-3xl bg-base-100 shadow-xl p-8 card">
-      <h1 className="text-3xl font-bold mb-4 text-center">Your Code Snippets</h1>
-      <p className="text-center mb-6">
-        You are logged in as <span className="font-mono">{userEmail}</span>.
-      </p>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          {selectedFolder && (
-            <button className="btn btn-ghost btn-sm" onClick={() => setSelectedFolder(null)}>
-              ← Back
-            </button>
-          )}
-          <h2 className="text-3xl font-bold">
-            {selectedFolder ?
-              folders.find(f => f.id === selectedFolder)?.name || "Folder"
-              : "Your Snippets"}
-          </h2>
-        </div>
-        <div className="flex gap-2">
-          <button className="btn btn-success" onClick={() => setAddModalOpen(true)}>
-            + Add Snippet
-          </button>
-          {!selectedFolder && (
-            <button className="btn btn-primary" onClick={() => setAddFolderOpen(true)}>
-              + New Folder
-            </button>
-          )}
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      {/* Top Bar */}
+      <div className="min-w-[1200px] w-full border-b border-base-300 bg-base-100">
+        <div className="flex items-center justify-between px-8 py-3 max-w-[1200px] min-w-[1200px] mx-auto" style={{ minWidth: 700, maxWidth: 1200 }}>
+          <div className="font-bold text-lg flex items-center gap-2">
+            <span className="inline-block w-5 h-5 bg-base-300 rounded mr-2" />
+            CodeVault
+          </div>
+          <div className="flex gap-4">
+            <button className="btn btn-ghost btn-sm font-semibold">Dashboard</button>
+            <button className="btn btn-ghost btn-sm font-semibold">Account</button>
+          </div>
+          <button className="btn btn-ghost btn-sm font-semibold">Logout</button>
         </div>
       </div>
-      {/* Folders on top */}
-      {!selectedFolder && folders.length > 0 && (
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {folders.map(folder => (
-            <button
-              key={folder.id}
-              className="card bg-base-200 border-2 border-primary/20 hover:border-primary p-4 flex flex-col items-center cursor-pointer transition-all relative"
-              onClick={() => setSelectedFolder(folder.id)}
-              style={{ minHeight: 56 }}
-            >
-              <span className="text-lg font-semibold text-primary">{folder.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      {/* Folder settings cog and delete dialog in folder view */}
-      {selectedFolder && !showDeleteFolderDialog && (
-        <div className="flex items-center justify-end mb-6 relative">
-          <div className={`dropdown dropdown-end${folderDropdownOpen ? ' dropdown-open' : ''}`}> 
-            <button
-              tabIndex={0}
-              className="btn btn-ghost btn-circle"
-              title="Folder settings"
-              onClick={() => setFolderDropdownOpen(open => !open)}
-              onBlur={() => setTimeout(() => setFolderDropdownOpen(false), 100)}
-            >
-              <Settings size={22} />
-            </button>
-            <ul
-              tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48 border-2 border-neutral mt-2 z-50"
-            >
-              <li>
-                <button
-                  className="btn btn-sm w-full flex items-center gap-2"
-                  onClick={() => {
-                    // Set current folder name for editing
-                    const folder = folders.find(f => f.id === selectedFolder);
-                    setEditFolderName(folder?.name || "");
-                    setShowEditFolderDialog(true);
-                    setFolderDropdownOpen(false);
-                  }}
+      {/* Main Layout */}
+      <div className="flex flex-1 w-full max-w-[1200px] min-w-[700px] mx-auto mt-8 gap-8" style={{ minWidth: 700, maxWidth: 1200 }}>
+        {/* Main Content - full width, no sidebar */}
+        <main className="flex-1">
+          {/* Filters above Search Bar */}
+          {selectedFolder && (
+            <div className="w-full max-w-xl flex justify-start mb-2">
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setSelectedFolder(null)}
+              >
+                ← Back to Root
+              </button>
+            </div>
+          )}
+          <div className="flex flex-col items-center mb-8 gap-4">
+            <div className="flex gap-4 w-full max-w-xl min-w-[600px] mx-auto">
+              {/* Folder Filter - only show in root view */}
+              {selectedFolder == null && (
+                <select
+                  className="select select-bordered select-sm w-1/3"
+                  value={folderFilter}
+                  onChange={e => setFolderFilter(e.target.value)}
                 >
-                  Edit Folder Name
-                </button>
-              </li>
-              <hr className="my-3"/>
-              <li>
-                <button
-                  className="btn btn-outline btn-sm w-full flex items-center gap-2"
-                  onClick={() => {
-                    window.open(`/snippets/print-folder?folder=${selectedFolder}`, '_blank');
-                    setFolderDropdownOpen(false);
-                  }}
-                >
-                  Print Folder
-                </button>
-              </li>
-              <hr className="my-3"/>
-              <li>
-                <button
-                  className="btn btn-error btn-sm w-full flex items-center gap-2"
-                  onClick={() => {
-                    setShowDeleteFolderDialog(true);
-                    setFolderDropdownOpen(false);
-                  }}
-                >
-                  Delete Folder
-                </button>
-              </li>
-            </ul>
+                  <option value="root">Root</option>
+                  {folders.map(f => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
+                  ))}
+                </select>
+              )}
+              {/* Language Filter */}
+              <select
+                className="select select-bordered select-sm w-1/3"
+                value={languageFilter}
+                onChange={e => setLanguageFilter(e.target.value)}
+              >
+                <option value="all">All languages</option>
+                {allLanguages.map(lang => (
+                  <option key={lang} value={lang}>{lang}</option>
+                ))}
+              </select>
+              {/* Visibility Filter */}
+              <select
+                className="select select-bordered select-sm w-1/3"
+                value={visibilityFilter}
+                onChange={e => setVisibilityFilter(e.target.value)}
+              >
+                <option value="all">All visibilities</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+              </select>
+            </div>
+            <input
+              type="text"
+              placeholder="Search snippets"
+              className="input input-bordered input-lg w-full max-w-xl"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-2xl font-bold mb-1 text-base-content">Snippet Library</div>
+              {/* Folder name and settings cog on same row if in a folder */}
+              {selectedFolder && (
+                <div className="flex items-center gap-2 mb-1 mt-2">
+                  <span className="text-lg font-semibold text-primary">
+                    {folders.find(f => f.id === selectedFolder)?.name || ""}
+                  </span>
+                  {!showDeleteFolderDialog && (
+                    <div className={`dropdown dropdown-end${folderDropdownOpen ? ' dropdown-open' : ''}`}> 
+                      <button
+                        tabIndex={0}
+                        className="btn btn-ghost btn-circle"
+                        title="Folder settings"
+                        onClick={() => setFolderDropdownOpen(open => !open)}
+                        onBlur={() => setTimeout(() => setFolderDropdownOpen(false), 100)}
+                      >
+                        <Settings size={22} />
+                      </button>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48 border-2 border-neutral mt-2 z-50"
+                      >
+                        <li>
+                          <button
+                            className="btn btn-sm w-full flex items-center gap-2"
+                            onClick={() => {
+                              const folder = folders.find(f => f.id === selectedFolder);
+                              setEditFolderName(folder?.name || "");
+                              setShowEditFolderDialog(true);
+                              setFolderDropdownOpen(false);
+                            }}
+                          >
+                            Edit Folder Name
+                          </button>
+                        </li>
+                        <hr className="my-3"/>
+                        <li>
+                          <button
+                            className="btn btn-outline btn-sm w-full flex items-center gap-2"
+                            onClick={() => {
+                              window.open(`/snippets/print-folder?folder=${selectedFolder}`, '_blank');
+                              setFolderDropdownOpen(false);
+                            }}
+                          >
+                            Print Folder
+                          </button>
+                        </li>
+                        <hr className="my-3"/>
+                        <li>
+                          <button
+                            className="btn btn-error btn-sm w-full flex items-center gap-2"
+                            onClick={() => {
+                              setShowDeleteFolderDialog(true);
+                              setFolderDropdownOpen(false);
+                            }}
+                          >
+                            Delete Folder
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 ml-auto">
+              <button className="btn btn-success" onClick={() => setAddModalOpen(true)}>
+                + Add Snippet
+              </button>
+              {/* Only show '+ New Folder' if not in a folder */}
+              {!selectedFolder && (
+                <button className="btn btn-primary" onClick={() => setAddFolderOpen(true)}>
+                  + New Folder
+                </button>
+              )}
+            </div>
+          </div>
+          {/* Folder/Snippet toggles replaced by contextual arrows */}
+          {/* Folders Arrow Toggle (root view only, above folders grid) */}
+          {!selectedFolder && folders.length > 0 && (
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                className="btn btn-ghost btn-xs"
+                onClick={() => setShowFoldersOpen(v => !v)}
+                aria-label={showFoldersOpen ? "Hide Folders" : "Show Folders"}
+              >
+                {showFoldersOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+              <span className="font-semibold">Folders</span>
+            </div>
+          )}
+          {/* Folders grid (only in root view) */}
+          {!selectedFolder && folders.length > 0 && showFoldersOpen && (
+            <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-[1100px] mx-auto" style={{ minWidth: 700, maxWidth: 1100, minHeight: 120 }}>
+              <>
+                {folders.map(folder => (
+                  <button
+                    key={folder.id}
+                    className="card bg-base-200 border-2 border-primary/20 hover:border-primary p-4 flex flex-row items-center gap-3 cursor-pointer transition-all relative"
+                    onClick={() => setSelectedFolder(folder.id)}
+                    style={{ minHeight: 56 }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-base-content/70"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7a2 2 0 012-2h3.28a2 2 0 011.6.8l1.44 1.92A2 2 0 0012.72 9H19a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" /></svg>
+                    <span className="text-lg font-semibold text-base-content">{folder.name}</span>
+                  </button>
+                ))}
+                {/* Fill empty grid cells to keep width stable */}
+                {Array.from({ length: Math.max(0, 4 - folders.length) }).map((_, i) => (
+                  <div key={"folder-placeholder-" + i} className="invisible" />
+                ))}
+              </>
+            </div>
+          )}
+          {/* Snippets Arrow Toggle (root view only, above snippets grid) */}
+          {!selectedFolder && (
+            <div className="flex items-center gap-2 mb-2 mt-6">
+              <button
+                className="btn btn-ghost btn-xs"
+                onClick={() => setShowSnippetsOpen(v => !v)}
+                aria-label={showSnippetsOpen ? "Hide Snippets" : "Show Snippets"}
+              >
+                {showSnippetsOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+              <span className="font-semibold">Snippets</span>
+            </div>
+          )}
+          {/* Snippet cards grid - only render once! */}
+          {((!selectedFolder && showSnippetsOpen) || selectedFolder) && (
+            <div className="w-full flex justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-6 w-full max-w-[1100px] mx-auto" style={{ minWidth: 700, maxWidth: 1100, minHeight: 220 }}>
+                {error ? (
+                  <div className="alert alert-error col-span-full">Error loading snippets: {error}</div>
+                ) : loading ? (
+                  <div className="text-center text-base opacity-70 col-span-full">Loading...</div>
+                ) : visibleSnippets.length === 0 ? (
+                  <div className="text-center opacity-60 my-12 col-span-full" style={{ minHeight: 60 }}>No snippets found.</div>
+                ) : (
+                  <>
+                    {[...visibleSnippets].reverse().map(snippet => (
+                      <div
+                        key={snippet.id}
+                        className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm flex flex-col relative cursor-pointer hover:ring-2 hover:ring-primary transition"
+                        onClick={() => setModalSnippet(snippet)}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="font-semibold text-base-content">{snippet.title}</div>
+                          {snippet.is_public && (
+                            <span className="text-xs font-semibold rounded px-2 py-1 ml-2 bg-blue-100 text-blue-700">PUBLIC</span>
+                          )}
+                          {/* Bookmark icon placeholder */}
+                          <button className="btn btn-ghost btn-xs ml-auto">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg>
+                          </button>
+                        </div>
+                        <div className="text-xs text-base-content/60 mb-2">{snippet.language} • {new Date(snippet.created_at).toLocaleString()}</div>
+                        <div className="text-sm text-base-content/80 mb-4">
+                          <PrismCodeBlock code={snippet.code} language={snippet.language} maxLines={5} />
+                        </div>
+                        <button className="btn btn-neutral btn-block mt-auto">Open</button>
+                      </div>
+                    ))}
+                    {Array.from({ length: Math.max(0, 3 - visibleSnippets.length) }).map((_, i) => (
+                      <div key={"placeholder-" + i} className="invisible" />
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </main>
+      </div> {/* End main layout flex */}
       {showEditFolderDialog && selectedFolder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-base-100 border-2 border-primary rounded-xl shadow-xl p-8 max-w-sm w-full relative">
@@ -228,9 +424,8 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
                 maxLength={64}
                 autoFocus
               />
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 mt-4">
                 <button
-                  className="btn"
                   type="button"
                   onClick={() => setShowEditFolderDialog(false)}
                   disabled={editFolderLoading}
@@ -319,30 +514,6 @@ export default function SnippetDashboard({ userId, userEmail }: { userId: string
           fetchFolders();
         }}
       />
-      {error ? (
-        <div className="alert alert-error">Error loading snippets: {error}</div>
-      ) : loading ? (
-        <div className="text-center text-base opacity-70">Loading...</div>
-      ) : visibleSnippets.length === 0 ? (
-        <div className="text-center opacity-60 my-12">No snippets found.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {visibleSnippets.map(snippet => (
-            <div
-              key={snippet.id}
-              className="card bg-base-200 shadow-md p-4 cursor-pointer hover:ring-2 hover:ring-primary transition"
-              onClick={() => setModalSnippet(snippet)}
-            >
-              <div className="flex flex-col gap-2">
-                <div className="font-semibold text-lg">{snippet.title}</div>
-                <div className="text-xs opacity-70">{snippet.language} • {new Date(snippet.created_at).toLocaleString()}</div>
-                <PrismCodeBlock code={snippet.code} language={snippet.language} maxLines={5} />
-                <div className="text-xs opacity-60 mt-1">Public: {snippet.is_public ? "Yes" : "No"}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
       {/* Always-on blur when modal is open */}
       {!!modalSnippet && (
         <div className="fixed inset-0 z-40 pointer-events-none">

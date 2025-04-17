@@ -31,7 +31,9 @@ export default function UserBubble() {
   if (pathname === "/signin" || pathname === "/signup") return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 ">
+    // Ensure UserBubble is always clickable and above all UI
+    <div className="fixed top-4 right-4 z-[9999]" style={{ pointerEvents: 'auto' }}>
+
       {user ? (
         <div className="dropdown dropdown-end ">
           <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
