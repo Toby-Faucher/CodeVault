@@ -1,9 +1,11 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: dim lofi, light, dark, cupcake, bumblebee --default, emerald, corporate, synthwave --prefersdark, dracula;
+  themes: all;
   root: ":root";
   logs: false;
 }
+
+
 
 @font-face {
   font-family: "Aspekta Variable";

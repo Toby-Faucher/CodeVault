@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="48" viewBox="0 0 120 48">
+  <style>
+    @font-face {
+      font-family: 'Aspekta';
+      src: url('/static/Aspekta.woff2') format('woff2');
+      font-weight: 900;
+      font-style: normal;
+    }
+    .aspekta {
+      font-family: 'Aspekta', sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      font-style: italic;
+      fill: #000;
+    }
+  </style>
+  <text x="0" y="40" class="aspekta">CV</text>
+</svg>

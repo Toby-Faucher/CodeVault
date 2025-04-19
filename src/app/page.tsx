@@ -2,7 +2,8 @@
 
 "use client";
 import UserBubbleLanding from "../../components/user-bubble-landing";
-import ThemeSwitcher from "../../components/ThemeSwitcher";
+
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -11,9 +12,15 @@ export default function Home() {
       <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-2">
         <div className="flex items-center gap-2">
           <span className="font-bold text-lg flex items-center gap-2">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="inline-block"><circle cx="12" cy="12" r="10" fill="url(#cvlogo)" /><defs><linearGradient id="cvlogo" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stopColor="#06b6d4"/><stop offset="1" stopColor="#818cf8"/></linearGradient></defs></svg>
-            CodeVault
-          </span>
+  <Image
+    src="/static/logo.svg"
+    alt="CodeVault Logo"
+    height={40}
+    width={85}
+    style={{ width: 'auto', height: 40, display: 'inline-block' }}
+    priority
+  />
+</span>
         </div>
         <div className="hidden md:flex items-center font-bold gap-6 text-sm text-base-content/70 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <a href="#how" className="hover:text-primary transition-colors cursor-pointer">How it works</a>
@@ -22,8 +29,7 @@ export default function Home() {
           <a href="#faq" className="hover:text-primary transition-colors cursor-pointer">FAQ</a>
         </div>
         <div className="flex items-center gap-2">
-          {/* Theme Switcher placed to the left of the user bubble */}
-          <ThemeSwitcher />
+
           <UserBubbleLanding />
         </div>
       </nav>
@@ -39,28 +45,52 @@ export default function Home() {
           <p className="text-lg max-w-xl font-medium text-base-content/80 mb-6 text-center">Upload, manage, and discover code snippets online.</p>
 
         </section>
-        {/* How It Works Section */}
-        <section id="how" className="w-full flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 py-16 min-h-[700px]">
+        {/* How It Works Section - Card Grid */}
+        <section id="how" className="w-full flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 py-16 min-h-[500px]">
           <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-6">How It Works</h1>
-          <p className="max-w-xl text-lg text-center text-base-content/80 mb-10">Code Vault makes it easy to upload, organize, and share your code snippets. Whether you want to keep your snippets private or share them with the world, Code Vault has you covered.</p>
-          <ol className="w-full max-w-xl space-y-6">
-            <li className="bg-base-100 rounded-xl p-5 shadow border-l-4 border-primary">
-              <h2 className="text-xl font-bold mb-1 text-primary">1. Sign Up & Sign In</h2>
-              <p>Create an account or sign in to start managing your personal code vault.</p>
-            </li>
-            <li className="bg-base-100 rounded-xl p-5 shadow border-l-4 border-secondary">
-              <h2 className="text-xl font-bold mb-1 text-secondary">2. Add & Organize Snippets</h2>
-              <p>Upload code snippets, assign them to folders, and tag them for easy searching and organization.</p>
-            </li>
-            <li className="bg-base-100 rounded-xl p-5 shadow border-l-4 border-accent">
-              <h2 className="text-xl font-bold mb-1 text-accent">3. Share & Discover</h2>
-              <p>Share your snippets publicly, browse and fork public code, and collaborate with the community.</p>
-            </li>
-            <li className="bg-base-100 rounded-xl p-5 shadow border-l-4 border-success">
-              <h2 className="text-xl font-bold mb-1 text-success">4. Edit & Manage</h2>
-              <p>Edit, update, or delete your snippets at any time. Your vault is always in your control.</p>
-            </li>
-          </ol>
+          <p className="max-w-xl text-lg text-center text-base-content/80 mb-10">Get started in seconds. CodeVault is built for speed, security, and simplicity.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+            {/* Step 1: Sign Up & Vault Your Code */}
+            <div className="bg-base-100 rounded-2xl p-6 shadow flex flex-col items-center text-center relative">
+              <span className="absolute top-4 left-4 bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow">1</span>
+              {/* Vault Icon */}
+              <svg width="54" height="54" fill="none" viewBox="0 0 48 48" stroke="currentColor" className="mb-4 text-primary">
+                <circle cx="24" cy="24" r="22" strokeWidth="2" className="opacity-10"/>
+                <rect x="14" y="16" width="20" height="16" rx="4" strokeWidth="2" fill="none"/>
+                <circle cx="24" cy="24" r="4" strokeWidth="2"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M24 20v8"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 24h8"/>
+              </svg>
+              <h2 className="font-bold text-lg mb-2">Sign Up & Vault Your Code</h2>
+              <p className="text-base-content/80">Create your free CodeVault account. All your code snippets are securely stored in your personal vault—accessible from anywhere, anytime.</p>
+            </div>
+            {/* Step 2: Add & Organize Snippets */}
+            <div className="bg-base-100 rounded-2xl p-6 shadow flex flex-col items-center text-center relative">
+              <span className="absolute top-4 left-4 bg-secondary text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow">2</span>
+              {/* Code Brackets Icon */}
+              <svg width="54" height="54" fill="none" viewBox="0 0 48 48" stroke="currentColor" className="mb-4 text-secondary">
+                <circle cx="24" cy="24" r="22" strokeWidth="2" className="opacity-10"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 18l-6 6 6 6"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M28 18l6 6-6 6"/>
+                <rect x="22" y="21" width="4" height="6" rx="1" strokeWidth="2"/>
+              </svg>
+              <h2 className="font-bold text-lg mb-2">Add & Organize Snippets</h2>
+              <p className="text-base-content/80">Paste, tag, and organize your favorite code snippets. Use folders, tags, and blazing-fast search to keep your vault tidy and efficient.</p>
+            </div>
+            {/* Step 3: Share or Keep Private */}
+            <div className="bg-base-100 rounded-2xl p-6 shadow flex flex-col items-center text-center relative">
+              <span className="absolute top-4 left-4 bg-accent text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow">3</span>
+              {/* Share/Link Icon with code sheet */}
+              <svg width="54" height="54" fill="none" viewBox="0 0 48 48" stroke="currentColor" className="mb-4 text-accent">
+                <circle cx="24" cy="24" r="22" strokeWidth="2" className="opacity-10"/>
+                <rect x="16" y="16" width="16" height="20" rx="3" strokeWidth="2"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M32 20l4 4-4 4"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 24h16"/>
+              </svg>
+              <h2 className="font-bold text-lg mb-2">Share or Keep Private</h2>
+              <p className="text-base-content/80">Share your snippets with a public link or keep them private in your vault. Fork, collaborate, or simply organize—your code, your rules.</p>
+            </div>
+          </div>
         </section>
         {/* Features Section */}
         <section id="features" className="w-full flex flex-col items-center justify-center px-6 md:px-12 lg:px-24 py-16">
@@ -124,12 +154,13 @@ export default function Home() {
               <div className="text-4xl font-extrabold mb-2 text-primary">$0</div>
               <p className="text-base-content/80 mb-6 text-center">Perfect for individuals getting started.</p>
               <ul className="mb-8 space-y-2 text-base-content/80 text-left w-full max-w-xs mx-auto">
-                <li>✔️ 50 snippets</li>
-                <li>✔️ 3 folders</li>
-                <li>✔️ Public & private snippets</li>
-                <li>✔️ Community access</li>
-              </ul>
-              <button className="btn btn-primary btn-block">Get Started</button>
+  <li>✔️ 50 snippets</li>
+  <li>✔️ 3 folders</li>
+  <li>✔️ Public & private snippets</li>
+  <li>✔️ Community access</li>
+</ul>
+<div className="flex-grow" />
+<button className="btn btn-primary btn-block mt-2">Get Started</button>
             </div>
             {/* Pro Plan */}
             <div className="relative bg-base-100 rounded-2xl p-8 shadow-md border-2 border-secondary/40 flex flex-col items-center overflow-visible before:content-[''] before:absolute before:left-1/2 before:-translate-x-1/2 before:bottom-0 before:w-4/5 before:h-7 before:rounded-full before:blur-xl before:opacity-70 before:-z-10 before:bg-gradient-to-r before:from-secondary/40 before:via-primary/40 before:to-accent/40">

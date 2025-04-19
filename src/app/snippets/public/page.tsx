@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import PublicSnippetList from "../../../../components/public-snippet-list";
+import PublicSnippetSearchList from "../../../../components/public-snippet-search-list";
 
 export default async function PublicSnippetsPage() {
   const cookieStore = await cookies();
@@ -15,10 +14,6 @@ export default async function PublicSnippetsPage() {
       },
     }
   );
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/signin"); // updated to your actual sign-in route
-  }
 
   // Fetch all public snippets
   const { data: snippets, error } = await supabase
@@ -40,7 +35,7 @@ export default async function PublicSnippetsPage() {
   return (
     <main className="min-h-screen bg-base-200 flex flex-col items-center py-10">
       <h1 className="text-3xl font-bold mb-6">All Public Snippets</h1>
-      <PublicSnippetList snippets={snippets ?? []} />
+      <PublicSnippetSearchList snippets={snippets ?? []} />
     </main>
   );
 }

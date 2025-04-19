@@ -52,11 +52,11 @@ export default function ForkSnippetButton({ snippet }: { snippet: { id: string; 
   }
 
   return (
-    <div className="flex flex-col items-center mt-6">
+    <>
       <button className="btn btn-accent" onClick={handleFork} disabled={loading}>
         {loading ? "Forking..." : "Fork Snippet"}
       </button>
-      {error && <div className="text-error mt-2 text-sm">{error}</div>}
-    </div>
+      {error && <div className="text-error mt-2 text-sm w-full text-center">{error}</div>}
+    </>
   );
 }
