@@ -3,7 +3,6 @@ import React from "react";
 import { Settings } from "lucide-react";
 
 interface FolderDropdownProps {
-  folderName: string;
   onEdit: () => void;
   onPrint: () => void;
   onDelete: () => void;
@@ -12,7 +11,6 @@ interface FolderDropdownProps {
 }
 
 const FolderDropdown: React.FC<FolderDropdownProps> = ({
-  folderName,
   onEdit,
   onPrint,
   onDelete,

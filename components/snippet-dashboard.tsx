@@ -247,7 +247,6 @@ function SnippetDashboard({ userId }: { userId: string }) {
                       </span>
                       {!showDeleteFolderDialog && (
                         <FolderDropdown
-                          folderName={folders.find(f => f.id === selectedFolder)?.name || ""}
                           open={folderDropdownOpen}
                           setOpen={setFolderDropdownOpen}
                           onEdit={() => {
