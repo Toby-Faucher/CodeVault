@@ -23,6 +23,8 @@ export default function PrintFolderClient({ folder, snippets }: { folder: Folder
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-white print:bg-white">
+      {/* Print-only header */}
+      <div className="hidden print:block text-center print:text-left text-2xl font-bold mb-4">Printed by CodeVault</div>
       <div className="w-full max-w-4xl bg-white shadow-none p-8 card mt-10 print:shadow-none print:p-0">
         <h1 className="text-4xl font-bold mb-8 text-center print:text-left">{folder.name}</h1>
         {snippets.length === 0 ? (

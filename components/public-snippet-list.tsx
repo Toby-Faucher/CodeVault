@@ -2,6 +2,14 @@
 import { useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import PrismCodeBlock from "./prism-code-block";
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from "@supabase/ssr";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createBrowserClient(supabaseUrl, supabaseKey);
 
 interface Snippet {
   id: string;
@@ -15,9 +23,46 @@ interface Snippet {
 
 export default function PublicSnippetList({ snippets }: { snippets: Snippet[] }) {
   const [modalSnippet, setModalSnippet] = useState<Snippet | null>(null);
+  const router = useRouter();
 
   return (
-    <div className="w-full max-w-5xl">
+    <>
+      {/* Dashboard-style Navbar */}
+      <div className="navbar bg-base-100 border-b border-base-300 px-8" style={{ minWidth: 1200, maxWidth: 1200, margin: '0 auto' }}>
+        <div className="navbar-start">
+          <Link href="/" className="btn btn-ghost normal-case text-lg flex items-center gap-2" style={{ cursor: 'pointer', padding: 0 }}>
+            <Image
+              src="/static/logo.svg"
+              alt="CodeVault Logo"
+              height={40}
+              width={85}
+              style={{ width: 'auto', height: 40, display: 'inline-block', marginRight: 8 }}
+              priority
+            />
+            <span style={{ fontWeight: 700 }}>CodeVault</span>
+          </Link>
+        </div>
+        <div className="navbar-center hidden md:flex">
+          <ul className="menu menu-horizontal px-1 gap-4">
+            <li>
+              <button className="btn btn-ghost btn-sm font-semibold" onClick={() => router.push('/snippets/public')}>
+                Public Snippets
+              </button>
+            </li>
+            <li><button className="btn btn-ghost btn-sm font-semibold" onClick={() => router.push('/dashboard')}>Dashboard</button></li>
+            <li><button className="btn btn-ghost btn-sm font-semibold" onClick={() => router.push('/account')}>Account</button></li>
+          </ul>
+        </div>
+        <div className="navbar-end">
+          <button className="btn btn-ghost btn-sm font-semibold" onClick={async () => {
+            await supabase.auth.signOut();
+            router.push('/signin');
+          }}>Logout</button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="w-full max-w-5xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {snippets.length ? snippets.map(snippet => (
           <div
@@ -88,5 +133,6 @@ export default function PublicSnippetList({ snippets }: { snippets: Snippet[] })
         </Dialog>
       </Transition.Root>
     </div>
+  </>
   );
 }
